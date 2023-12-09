@@ -5,8 +5,14 @@ from aiogram.filters import Command
 from bot.quiz_bot import dp
 
 
-@dp.message(Command("quit"))
+@dp.message(Command("start"))
 async def quit_handler(message: types.Message, state: FSMContext):
+    await state.set_state(ClientStatesGroup.default)
+    await message.answer("Hi there!")
+
+
+@dp.message(Command("quit"))
+async def start_handler(message: types.Message, state: FSMContext):
     await state.set_state(ClientStatesGroup.default)
     await message.answer("Action quit with success")
 
