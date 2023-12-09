@@ -1,7 +1,7 @@
 import psycopg2
 import json
 
-from quiz.quiz import Question, Quiz
+from quiz.quiz import Question
 
 
 class DataBase:
@@ -68,7 +68,6 @@ class QuestionsDB(DataBase):
         except Exception as e:
             print(f"Error: {e}")
 
-
     def add_question(self, question: Question) -> bool:
         try:
             self._execute_no_fetch(
@@ -116,5 +115,49 @@ class QuestionsDB(DataBase):
         return self.get_len()
 
 
+class UsersDB(DataBase):
+    def add_user(self, user_id: int):
+        try:
+            self._execute_no_fetch(
+                f"""
+                INSERT INTO "Users" (
+                id, role
+                )
+                VALUES ('{user_id}', 'user');
+                """)
+        except Exception as e:
+            print(f"Error {e}")
+
+    def get_role(self, user_id: int):
+        try:
+            ans = self._execute(
+                f"""
+                SELECT *
+                FROM "Users"
+                WHERE id = {user_id};
+                """)
+            return ans[0]
+        except Exception as e:
+            print(f"Error {e}")
+
+    def get_len(self) -> int:
+        ans = ()
+        try:
+            ans = self._execute(
+                f"""
+                SELECT COUNT(*)
+                FROM "Users";
+                """
+            )
+        except Exception as e:
+            print(f"Error: {e}")
+
+        return ans[0]
+
+    def __len__(self):
+        return self.get_len()
+
+
 cfg = json.load(open("config.json"))
 Questions = QuestionsDB(cfg["db_params"])
+Users = UsersDB(cfg["db_params"])
