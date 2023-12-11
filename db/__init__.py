@@ -64,7 +64,27 @@ class QuestionsDB(DataBase):
                 LIMIT {n};
                 """)
 
-            return [Question(q[1], q[5], q[2], q[3], q[4]) for q in ans]
+            return [Question(q[0], q[1], q[5], q[2], q[3], q[4]) for q in ans]
+        except Exception as e:
+            print(f"Error: {e}")
+
+    def get_unanswered_random_questions(self, n: int, user_id: int) -> list[Question]:
+        ans = None
+        try:
+            ans = self._execute_all(
+                f"""
+                SELECT *
+                FROM "Questions" as q
+                WHERE q.question_id  NOT IN (
+                    SELECT question_id
+                    FROM "QuestionAnswerDetails" AS qad
+                    WHERE user_id = {user_id}
+                    )
+                ORDER BY RANDOM()
+                LIMIT {n};
+                """)
+
+            return [Question(q[0], q[1], q[5], q[2], q[3], q[4]) for q in ans]
         except Exception as e:
             print(f"Error: {e}")
 
@@ -158,6 +178,88 @@ class UsersDB(DataBase):
         return self.get_len()
 
 
+class QuestionAnswerDetailsDB(DataBase):
+
+    def add_answer(self, date, user_id, answered_right, question_id):
+        try:
+            self._execute_no_fetch(
+                f"""
+                INSERT INTO "QuestionAnswerDetails"
+                (date, answered_right, user_id, question_id)
+                VALUES('{date}', {answered_right}, {user_id}, {question_id}); 
+                """)
+        except Exception as e:
+            print(f"Error {e}")
+
+    def get_stats(self, user_id):
+        try:
+            ans = self._execute_all(
+                f"""
+                SELECT *
+                FROM "QuestionAnswerDetails" AS qad
+                JOIN "Questions" AS q
+                    ON qad.question_id = Q.question_id
+                WHERE qad.user_id = {user_id}
+                ORDER BY qad.date ASC;
+                """
+            )
+
+            return ans
+        except Exception as e:
+            print(f"Error {e}")
+
+        return None
+
+    def get_questions(self, user_id):
+        try:
+            ans = self._execute_all(
+                f"""
+                SELECT *
+                FROM "QuestionAnswerDetails"
+                WHERE user_id = {user_id};
+                """
+            )
+            return ans
+        except Exception as e:
+            print(f"Error {e}")
+
+        return None
+
+    def get_questions_from_date(self, user_id, date):
+        try:
+            ans = self._execute_all(
+                f"""
+                SELECT *
+                FROM "QuestionAnswerDetails"
+                WHERE user_id = {user_id} AND date > '{date}'
+                ORDER BY date ASC;
+                """
+            )
+            return ans
+        except Exception as e:
+            print(f"Error {e}")
+
+        return None
+
+    def get_len(self) -> int:
+        ans = ()
+        try:
+            ans = self._execute(
+                f"""
+                SELECT COUNT(*)
+                FROM "Questions";
+                """
+            )
+        except Exception as e:
+            print(f"Error: {e}")
+
+        return ans[0]
+
+    def __len__(self):
+        return self.get_len()
+
+
 cfg = json.load(open("config.json"))
 Questions = QuestionsDB(cfg["db_params"])
 Users = UsersDB(cfg["db_params"])
+QuestionAnswerDetails = QuestionAnswerDetailsDB(cfg["db_params"])

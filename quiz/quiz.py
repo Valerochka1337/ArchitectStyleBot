@@ -1,5 +1,6 @@
 class Question:
-    def __init__(self, title: str, description: str, image_url: str, variants: dict, answer: str):
+    def __init__(self, question_id: int,title: str, description: str, image_url: str, variants: dict, answer: str):
+        self.question_id = question_id
         self.title = title
         self.description = description
         self.image_url = image_url
