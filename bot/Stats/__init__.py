@@ -6,6 +6,8 @@ from db import QuestionAnswerDetails
 
 async def show_stats(chat_id, user_id: int):
     stats = QuestionAnswerDetails.get_stats(user_id)
+    if len(stats) == 0:
+        await bot.send_message(chat_id, "Вы пока еще не ответили ни на один вопрос🤡")
     right_guessed = sum([1 if i[1] else 0 for i in stats])
     false_guessed = sum([0 if i[1] else 1 for i in stats])
     answers = [i[7][i[8]] for i in stats]

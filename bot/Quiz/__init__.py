@@ -31,7 +31,6 @@ async def set_questions_num(message: Message, state: FSMContext):
     data = await state.get_data()
     if data.get('unans', False):
         max_questions_num = len(Questions.get_unanswered_random_questions(questions_num, message.from_user.id))
-    print(max_questions_num)
     if 0 <= max_questions_num < questions_num:
         await bot.send_message(message.chat.id,
                                f"Не получилось составить викторину из {questions_num} вопр.! Всего доступно только {max_questions_num} вопр.")

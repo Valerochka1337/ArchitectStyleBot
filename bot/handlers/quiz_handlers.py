@@ -58,4 +58,5 @@ async def start_random_quiz_handler(message: types.Message, state: FSMContext):
 
 @dp.message()
 async def default_handler(message: types.Message):
-    await message.answer("Вы не в изначальном состоянии, нажмите /quit или /start (если еще не зарегистрировались)")
+    await message.answer(
+        "Такой команды не существует или вы еще не нажали /start. Чтобы посмотреть все команды введите /help")
